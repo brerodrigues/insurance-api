@@ -23,8 +23,8 @@ public class InsuranceService {
     private final CarRepository carRepository;
     private final List<RiskStrategy> riskStrategies;
 
-    public InsuranceService (InsuranceRepository insuranceRepository, List<RiskStrategy> riskStrategies,
-                             CarRepository carRepository, CustomerRepository customerRepository) {
+    public InsuranceService(InsuranceRepository insuranceRepository, List<RiskStrategy> riskStrategies,
+                            CarRepository carRepository, CustomerRepository customerRepository) {
         this.insuranceRepository = insuranceRepository;
         this.riskStrategies = riskStrategies;
         this.carRepository = carRepository;
@@ -32,21 +32,28 @@ public class InsuranceService {
     }
 
     public InsuranceDTO createInsurance(InsuranceDTO insuranceDTO) {
-        Customer customer = customerRepository.findById(insuranceDTO.getCustomerId())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Customer id: %s not found", insuranceDTO.getCustomerId())));
-
-        Car car = carRepository.findById(insuranceDTO.getCarId())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Car id: %s not found", insuranceDTO.getCarId())));
+        Customer customer = getCustomer(insuranceDTO.getCustomerId());
+        Car car = getCar(insuranceDTO.getCarId());
 
         Insurance insurance = new Insurance();
         insurance.setCustomer(customer);
         insurance.setCar(car);
         insurance.setPercentageRate(calculatePercentageRate(insurance));
-        insurance.setQuote(calculateQuote(insurance.getCar(), insurance.getPercentageRate()));
+        insurance.setQuote(calculateQuote(car, insurance.getPercentageRate()));
         insurance.setCreationDate(LocalDateTime.now());
         insurance.setIsActive(true);
 
         return new InsuranceDTO(insuranceRepository.save(insurance));
+    }
+
+    private Customer getCustomer(Long customerId) {
+        return customerRepository.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Customer id: %s not found", customerId)));
+    }
+
+    private Car getCar(Long carId) {
+        return carRepository.findById(carId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Car id: %s not found", carId)));
     }
 
     private double calculatePercentageRate(Insurance insurance) {
@@ -65,30 +72,34 @@ public class InsuranceService {
     }
 
     public Optional<InsuranceDTO> getInsurance(Long id) {
-        Insurance insurance = insuranceRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException(String.format("Insurance id: %s not found", id)));
-        return Optional.of(new InsuranceDTO(insurance));
+        return insuranceRepository.findById(id)
+                .map(InsuranceDTO::new)
+                .or(() -> {
+                    throw new EntityNotFoundException(String.format("Insurance id: %s not found", id));
+                });
     }
 
     public InsuranceDTO updateInsurance(Long id, InsuranceDTO insuranceDTO) {
-        Insurance insurance = insuranceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Insurance id: %s not found", id)));
-        Customer customer = customerRepository.findById(insuranceDTO.getCustomerId())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Customer id: %s not found", insuranceDTO.getCustomerId())));
-        Car car = carRepository.findById(insuranceDTO.getCarId())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Car id: %s not found", insuranceDTO.getCarId())));
+        Insurance insurance = getInsuranceById(id);
+        Customer customer = getCustomer(insuranceDTO.getCustomerId());
+        Car car = getCar(insuranceDTO.getCarId());
 
         insurance.setCustomer(customer);
         insurance.setCar(car);
         insurance.setPercentageRate(calculatePercentageRate(insurance));
-        insurance.setQuote(calculateQuote(insurance.getCar(), insurance.getPercentageRate()));
+        insurance.setQuote(calculateQuote(car, insurance.getPercentageRate()));
         insurance.setUpdatedAt(LocalDateTime.now());
+
         return new InsuranceDTO(insuranceRepository.save(insurance));
     }
 
-    public void deleteInsurance(Long id) {
-        Insurance insurance = insuranceRepository.findById(id)
+    private Insurance getInsuranceById(Long id) {
+        return insuranceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Insurance id: %s not found", id)));
+    }
+
+    public void deleteInsurance(Long id) {
+        Insurance insurance = getInsuranceById(id);
         insuranceRepository.delete(insurance);
     }
 }
