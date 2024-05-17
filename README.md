@@ -29,6 +29,10 @@ Este projeto é um serviço backend para calcular orçamentos de seguro de carro
 
 ![Alt text](diagram.png)
 
+## Modelagem da aplicação
+
+![Alt text](model-diagram.png)
+
 ## Documentação da API
 
 A documentação da API está disponível no arquivo [api-doc.yaml](api-doc.yaml). Consulte esse arquivo para obter detalhes sobre os endpoints e os modelos de dados.
