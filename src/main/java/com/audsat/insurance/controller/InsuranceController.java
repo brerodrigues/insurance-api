@@ -11,7 +11,7 @@ import java.util.Optional;
 @RequestMapping("/insurance/budget")
 public class InsuranceController {
 
-    private InsuranceService insuranceService;
+    private final InsuranceService insuranceService;
 
     public InsuranceController(InsuranceService insuranceService) {
         this.insuranceService = insuranceService;
