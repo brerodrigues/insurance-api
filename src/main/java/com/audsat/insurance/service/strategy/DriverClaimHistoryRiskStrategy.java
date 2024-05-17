@@ -1,0 +1,25 @@
+package com.audsat.insurance.service.strategy;
+
+import com.audsat.insurance.model.Insurance;
+import com.audsat.insurance.model.Customer;
+import com.audsat.insurance.model.Driver;
+import com.audsat.insurance.util.Percentage;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Component
+public class DriverClaimHistoryRiskStrategy implements RiskStrategy {
+    @Override
+    public Percentage calculatePercentageRateRisk(Insurance insurance) {
+        return Optional.ofNullable(insurance.getCustomer())
+                .map(Customer::getDriver)
+                .map(Driver::getClaims).filter(claims -> !claims.isEmpty()).map(claims -> new Percentage(2))
+                .orElse(new Percentage(0));
+    }
+
+    @Override
+    public String getName() {
+        return "DriverClaimHistory";
+    }
+}
