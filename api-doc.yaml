@@ -1,0 +1,114 @@
+openapi: 3.0.0
+info:
+  title: Insurance API
+  description: API for managing insurance budgets
+  version: 0.0.1
+servers:
+  - url: http://localhost:9090
+paths:
+  /insurance/budget:
+    post:
+      summary: Create a new insurance budget
+      operationId: createInsurance
+      requestBody:
+        description: Insurance details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InsuranceDTO'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsuranceDTO'
+    get:
+      summary: Get an insurance budget by ID
+      operationId: getInsurance
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsuranceDTO'
+        '404':
+          description: Insurance not found
+    put:
+      summary: Update an insurance budget by ID
+      operationId: updateInsurance
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Updated insurance details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InsuranceDTO'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsuranceDTO'
+        '404':
+          description: Insurance not found
+    delete:
+      summary: Delete an insurance budget by ID
+      operationId: deleteInsurance
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Insurance not found
+components:
+  schemas:
+    InsuranceDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int64
+        carId:
+          type: integer
+          format: int64
+        quote:
+          type: number
+          format: double
+        percentageRate:
+          type: number
+          format: double
+        creationDate:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        isActive:
+          type: boolean
